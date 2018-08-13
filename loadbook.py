@@ -25,7 +25,7 @@ cur.executescript('''
         Books_id    INTEGER,
         Words_id    INTEGER,
         count       INTEGER,
-        PRIMARY KEY (books_id, words_id)
+        PRIMARY KEY (Books_id, Words_id)
     )
 ''')
 
