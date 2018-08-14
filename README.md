@@ -4,13 +4,14 @@ This project aims to automatically generate keywords from a text file using
 Python 3.  All data is stored in a SQLite database.
 
 For now a keyword is defined as a word that is used in the text more frequently
-than in general English texts.  This has lots of room for improvement
+than in general English texts.  This has lots of room for improvement.
+
 keyword weight = (permillion times word appears in text / permillion times word appears in any given Engligh corpus )
 
 
 Word statistics are retreived from WordsAPI
 check https://www.wordsapi.com/docs/#frequency for reference.
-#### Important file rauth.py needs to be renamed auth.py including your API key , for now API allows 2,500 requests per day for free, you just have to be registered in RapidAPI https://rapidapi.com/
+#### IMPORTANT: file rauth.py needs to be renamed auth.py including your API key , for now API allows 2,500 requests per day for free, you just have to be registered in RapidAPI https://rapidapi.com/
 
 Database structure is in database.pdf file.
 
