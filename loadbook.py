@@ -1,4 +1,5 @@
 #This program creates db, reads a text file and stores words and word count into db
+#word status: 0: default value, unknown; 1: Retrieved, 2: word not found in API
 
 import sqlite3
 import re
@@ -16,6 +17,7 @@ cur.executescript('''
     CREATE TABLE IF NOT EXISTS Words (
         id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         word        TEXT UNIQUE,
+        status      INTEGER DEFAULT 0,
         zipf        REAL,
         permillion  REAL,
         diversity   REAL
