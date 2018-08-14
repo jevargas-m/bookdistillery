@@ -1,5 +1,5 @@
 import sqlite3
-import auth
+import auth, utils
 
 con = sqlite3.connect('bookswort.sqlite')
 cur = con.cursor()
@@ -12,16 +12,7 @@ except:
 
 print('database has',cur.fetchone()[0],'words')
 
-while True:
-    Books_id = input('Enter id of book under analysis:')
-    cur.execute('SELECT name FROM Books WHERE id = ?',(Books_id,))
-    bookname = cur.fetchone()
-    if bookname is None:
-        print('Book id is not valid')
-        continue
-    inputtext = 'Book under analysis is: *' + bookname[0] + '* <<yes>> to continue '
-    instruction = input(inputtext)
-    if instruction == 'yes': break
+Books_id = utils.inputBookid()
 
 cur.execute('''SELECT COUNT(Words.id) FROM Words JOIN Counts
            ON Counts.Words_id = Words.id AND Counts.Books_id = ?''',(Books_id,))
@@ -44,7 +35,8 @@ if inputtext == 'yes':
     for word in wordswostats:
         word = word[0]
         res = auth.getfreq(word)
-        print('************* word: ',word, res)
+        print('************* word: ',word)
+        print(res)
         if 'frequency' not in res:
             print('word not found or stats not present, status = 2')
             cur.execute('UPDATE Words SET status=2 WHERE word = ?', (word,))
