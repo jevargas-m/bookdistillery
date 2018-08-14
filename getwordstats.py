@@ -40,7 +40,6 @@ if inputtext == 'yes':
         if 'frequency' not in res:
             print('word not found or stats not present, status = 2')
             cur.execute('UPDATE Words SET status=2 WHERE word = ?', (word,))
-            con.commit()
 
         if 'frequency' in res:
             print('word found !!, status = 1')
@@ -50,5 +49,5 @@ if inputtext == 'yes':
             cur.execute('''
                     UPDATE Words SET status=1,zipf=?,permillion=?,diversity=?
                     WHERE word = ?''', (zipf,permillion,diversity,word))
-            con.commit()
         print('------------------------------------------------------------')
+        con.commit()
