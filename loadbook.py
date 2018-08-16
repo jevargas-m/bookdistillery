@@ -28,7 +28,15 @@ cur.executescript('''
         Words_id    INTEGER,
         count       INTEGER,
         PRIMARY KEY (Books_id, Words_id)
-    )
+    );
+
+    CREATE TABLE IF NOT EXISTS Textorder (
+        Books_id    INTEGER,
+        position    INTEGER,
+        Words_id    INTEGER,
+        PRIMARY KEY (Books_id, position)
+    );
+
 ''')
 
 cur.execute('''SELECT COUNT(*) FROM Words''')
@@ -67,6 +75,7 @@ for line in fhandler:
     line = line.lower()
     words = re.sub(r'[^\w\s]','',line).split()
 
+    position = 0
     for word in words:
         #find if word is already in db, insert and get id
         cur.execute('SELECT id FROM Words WHERE word = ?', (word,))
@@ -76,6 +85,10 @@ for line in fhandler:
             cur.execute('SELECT id FROM Words WHERE word = ?', (word,))
             row = cur.fetchone()
         Words_id = row[0]
+
+        position += 1
+        cur.execute('''INSERT INTO Textorder (Books_id,position,Words_id) VALUES
+            (?,?,?)''',(Books_id,position,Words_id))
 
         cur.execute('''SELECT Counts.count
                         FROM Books JOIN Words JOIN Counts
