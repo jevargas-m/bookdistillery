@@ -35,8 +35,7 @@ cur.executescript('''
         position    INTEGER,
         Words_id    INTEGER,
         PRIMARY KEY (Books_id, position)
-    );
-
+    )
 ''')
 
 cur.execute('''SELECT COUNT(*) FROM Words''')
@@ -70,12 +69,12 @@ con.commit()
 cur.execute('SELECT id FROM Books WHERE filename = ? ',(filename,))
 Books_id = cur.fetchone()[0]
 
+position = 0
 for line in fhandler:
     # Everything in lower case ignoring punctuation
     line = line.lower()
     words = re.sub(r'[^\w\s]','',line).split()
 
-    position = 0
     for word in words:
         #find if word is already in db, insert and get id
         cur.execute('SELECT id FROM Words WHERE word = ?', (word,))
