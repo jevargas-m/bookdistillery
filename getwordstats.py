@@ -4,13 +4,7 @@ import auth, utils
 con = sqlite3.connect('bookswort.sqlite')
 cur = con.cursor()
 
-try:
-    cur.execute('''SELECT COUNT(*) FROM Words''')
-except:
-    print('=== Error: db has not been built, run loadbook.py first ===')
-    quit()
-
-print('database has',cur.fetchone()[0],'words')
+utils.printWordsStats()
 
 Books_id = utils.inputBookid()
 

@@ -44,13 +44,6 @@ print('database has',cur.fetchone()[0],'words')
 filename = input('Enter file name, type <<q>> to quit: ')
 if filename == 'q': quit()
 
-#When enter is pressed use default test file
-if len(filename)<1:
-    filename = 'romeo.txt'
-    name = 'Test text'
-else:
-    name = input('Enter book name: ')
-
 try:
     fhandler = open(filename)
 except:
