@@ -17,7 +17,8 @@ def positionStdDev(Books_id,Words_id):
 def buildSummary(Books_id):
     #How many of the top words have been fetched from API
     cur.execute('''SELECT Words.word,Words.id,Counts.count FROM Words JOIN Counts
-        ON Counts.Words_id = Words.id AND Counts.Books_id = ? AND (Words.status = 1 OR Words.status = 2)
+        ON Counts.Words_id = Words.id AND Counts.Books_id = ?
+        AND (Words.status = 1 OR Words.status = 2)
         ORDER BY Counts.count DESC ''',(Books_id,))
     wordsforanalysis = cur.fetchall()
 
@@ -43,7 +44,7 @@ def buildSummary(Books_id):
         if status == 1:
             weight = round(calcpermillion / dbpermillion)
         elif status == 2:
-            weight = round(calcpermillion  ) #This is the reference frequency for words wo stats
+            weight = round(calcpermillion / 10 ) #This is the reference frequency for words wo stats
 
         cur.execute('SELECT * FROM Summary WHERE Books_id = ? AND Words_id=?',(Books_id,Words_id))
         row = cur.fetchone()
