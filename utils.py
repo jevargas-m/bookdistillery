@@ -3,6 +3,22 @@ import sqlite3
 con = sqlite3.connect('bookswort.sqlite')
 cur = con.cursor()
 
+def statsWordsdb():
+    try:
+        cur.execute('''SELECT COUNT(*) FROM Words''')
+        numwords = cur.fetchone()[0]
+    except:
+        return({'status':'Error: db has not been built, run loadbook.py first'})
+
+    cur.execute('SELECT COUNT(*) FROM WORDS WHERE status = 1 OR status = 2')
+    numfetched = cur.fetchone()[0]
+
+    cur.execute('SELECT COUNT(*) FROM WORDS WHERE status = 1')
+    numwithstats = cur.fetchone()[0]
+
+    return {'status':'db OK','numwords':numwords,'fetched':numfetched,
+            'numwithstats':numwithstats}
+
 def inputBookid():
     while True:
         Books_id = input('Enter id of book under analysis: ')
@@ -21,27 +37,20 @@ def inputBookid():
         elif instruction == 'q':
             quit()
 
-def statsWordsdb():
-    try:
-        cur.execute('''SELECT COUNT(*) FROM Words''')
-        numwords = cur.fetchone()[0]
-    except:
-        return({'status':'Error: db has not been built, run loadbook.py first'})
-
-    cur.execute('SELECT COUNT(*) FROM WORDS WHERE status = 1 OR status = 2')
-    numfetched = cur.fetchone()[0]
-
-    cur.execute('SELECT COUNT(*) FROM WORDS WHERE status = 1')
-    numwithstats = cur.fetchone()[0]
-
-    return {'status':'db OK','numwords':numwords,'fetched':numfetched, 'numwithstats':numwithstats}
-
 def printWordsStats():
     ws = statsWordsdb()
-    print('------------------------------')
+    print('--------------------------------------------------')
     print('DB Status:',ws['status'])
     if 'numwords' in ws:
         print('Words in database:\t',ws['numwords'])
         print('Words fetched from API:\t',ws['fetched'])
         print('Words with stats:\t',ws['numwithstats'])
+    return
+
+def printBooks():
+    cur.execute('SELECT id,name FROM Books ORDER BY id ASC')
+    print('--------------- Books in database ----------------')
+    print('**Book id**\t **Book name**')
+    for book in cur.fetchall():
+        print(book[0],'\t\t',book[1])
     return

@@ -38,14 +38,12 @@ cur.executescript('''
     )
 ''')
 
-cur.execute('''SELECT COUNT(*) FROM Words''')
-print('database has',cur.fetchone()[0],'words')
-
 filename = input('Enter file name, type <<q>> to quit: ')
 if filename == 'q': quit()
 
 try:
-    fhandler = open(filename)
+    path = 'Books/'
+    fhandler = open(path+filename)
 except:
     print('==== invalid file ====')
     quit()
@@ -56,6 +54,8 @@ row = cur.fetchone()
 if row is not None:
     print('=====File already processed=====')
     quit()
+
+name = input('Enter Book name: ')
 
 cur.execute('INSERT INTO Books (filename,name) VALUES ( ?,? )',(filename,name))
 con.commit()

@@ -77,6 +77,7 @@ cur.executescript('''
     )
 ''')
 
+utils.printBooks()
 Books_id = utils.inputBookid()
 
 inputtext = input('(1)Build Summary, (2)Display Keywords :')

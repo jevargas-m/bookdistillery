@@ -5,7 +5,7 @@ con = sqlite3.connect('bookswort.sqlite')
 cur = con.cursor()
 
 utils.printWordsStats()
-
+utils.printBooks()
 Books_id = utils.inputBookid()
 
 cur.execute('''SELECT COUNT(Words.id) FROM Words JOIN Counts
