@@ -43,7 +43,7 @@ if filename == 'q': quit()
 
 try:
     path = 'Books/'
-    fhandler = open(path+filename)
+    fhandler = open(path+filename, encoding='UTF-8')
 except:
     print('==== invalid file ====')
     quit()
