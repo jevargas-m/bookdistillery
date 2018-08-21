@@ -1,5 +1,7 @@
+# This file should be renamed auth.py in your local copy, inserting your own API key & host bellow
 mashkey = '<<RapidAPI key>>'
 mashhost = '<<WordsAPI host>>'
+#------------------------------------------------------------------------------------------------
 
 def getfreq(word):
     import requests
