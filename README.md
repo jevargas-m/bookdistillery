@@ -21,8 +21,8 @@ Database structure is in database.pdf file.
 
 ## Structure
 0. Text under analysis needs to be in /Books folder
-1. Use loadbook.py to load text in database, program counts how many times each words appears.  This is the first program to run as it builds the database file.  
-2. Use getwordstats.py to retrieve statistics from API and store in db (Words).  Idea is to only retrieve a word from db once.
+1. Use loadbook.py to load text in database, program counts how many times each words appears and the relative position each word appears on the text.  This is the first program to run as it builds the database file.  
+2. Use getwordstats.py to retrieve statistics from API and store in db (Words).  Idea is to only retrieve a word from API once.
 3. Use analyzebook.py to calculate keyword weight and store results in db (Summary)
 
 ## Future Improvements
