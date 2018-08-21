@@ -20,6 +20,7 @@ check https://www.wordsapi.com/docs/#frequency for reference.
 Database structure is in database.pdf file.
 
 ## Structure
+0. Text under analysis needs to be in /Books folder
 1. Use loadbook.py to load text in database, program counts how many times each words appears.  This is the first program to run as it builds the database file.  
 2. Use getwordstats.py to retrieve statistics from API and store in db (Words).  Idea is to only retrieve a word from db once.
 3. Use analyzebook.py to calculate keyword weight and store results in db (Summary)
@@ -29,7 +30,7 @@ Database structure is in database.pdf file.
 1. Automatically deal with different encodings.
 2. Improve REGEX to deal with different versions of same words: e.g. don't = dont, john = john's
 
-### 2.How keyword weight is defined
+### 2.How keyword are generated
 1. Define parameters to ponder the different algorithms (weight, stdev, unknown words).
 2. Define how many of the top words in the text are really needed to build the keywords.
 3. API has lots of information that can be used such as synonyms or words that can be related together.  This could be used to look for words that are related together and give more weight. (e.g. if driver, car, gasoline are present their importance could be raised as text may be talking about a particular subject.)
