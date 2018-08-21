@@ -37,7 +37,7 @@ Database structure is in database.pdf file.
 
 ### 3.Better user interface
 1. Easier to use experience
-2. Results visualization
+2. Results visualization, for now program outputs a keyword.csv file.  I generate a wordcloud using Wolfram-Mathematica file wordcloud.nb
 
 ## Special Thanks
 This project is my final project from Python for Everybody specialization taken in Coursera https://www.py4e.com/.  Thanks to Dr.Chuck for being a great teacher.
