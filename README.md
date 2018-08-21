@@ -7,7 +7,7 @@ For now a keyword weight is defined by using the following:
 
 1) Word that is used in the text more frequently than in general English texts. For example words like: "the", "is" or "that" are very common on any given text so simply counting how many times a word appears on a text is not enough.  This algorithm for sure has lots of room for improvement.
 
-keyword weight = (permillion times word appears in text / permillion times word appears in any given English corpus )
+keyword weight = (permillion times word appears in text under analysis / permillion times word appears in any given English corpus )
 
 2) How spread a word is in the text, if a word appears throught the whole text vs only in a chapter may be more important.  For this the program calculates the standard deviation of the positions a word appears on the text.
 
