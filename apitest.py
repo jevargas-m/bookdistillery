@@ -2,6 +2,9 @@ import auth
 
 print(auth.getfreq('friend'))
 print(auth.getfreq('khdkjhdf'))
+print(auth.getfreq('asked'))
+print(auth.getfreq('dont'))
+print(auth.getfreq('don'+'t'))
 
 # Results when word is found in wordsapiv1:
 #   {'word': 'friend', 'frequency': {'zipf': 5.65, 'perMillion': 448.38, 'diversity': 0.72}}

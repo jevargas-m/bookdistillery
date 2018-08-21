@@ -28,24 +28,22 @@ cur.executescript('''
         Words_id    INTEGER,
         count       INTEGER,
         PRIMARY KEY (Books_id, Words_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS Textorder (
+        Books_id    INTEGER,
+        position    INTEGER,
+        Words_id    INTEGER,
+        PRIMARY KEY (Books_id, position)
     )
 ''')
-
-cur.execute('''SELECT COUNT(*) FROM Words''')
-print('database has',cur.fetchone()[0],'words')
 
 filename = input('Enter file name, type <<q>> to quit: ')
 if filename == 'q': quit()
 
-#When enter is pressed use default test file
-if len(filename)<1:
-    filename = 'romeo.txt'
-    name = 'Test text'
-else:
-    name = input('Enter book name: ')
-
 try:
-    fhandler = open(filename)
+    path = 'Books/'
+    fhandler = open(path+filename, encoding='UTF-8')
 except:
     print('==== invalid file ====')
     quit()
@@ -57,11 +55,14 @@ if row is not None:
     print('=====File already processed=====')
     quit()
 
+name = input('Enter Book name: ')
+
 cur.execute('INSERT INTO Books (filename,name) VALUES ( ?,? )',(filename,name))
 con.commit()
 cur.execute('SELECT id FROM Books WHERE filename = ? ',(filename,))
 Books_id = cur.fetchone()[0]
 
+position = 0
 for line in fhandler:
     # Everything in lower case ignoring punctuation
     line = line.lower()
@@ -76,6 +77,10 @@ for line in fhandler:
             cur.execute('SELECT id FROM Words WHERE word = ?', (word,))
             row = cur.fetchone()
         Words_id = row[0]
+
+        position += 1
+        cur.execute('''INSERT INTO Textorder (Books_id,position,Words_id) VALUES
+            (?,?,?)''',(Books_id,position,Words_id))
 
         cur.execute('''SELECT Counts.count
                         FROM Books JOIN Words JOIN Counts

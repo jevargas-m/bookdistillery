@@ -1,4 +1,5 @@
 auth.py
 __pycache__
 bookswort.sqlite
-*.txt
+Books/
+littleprince.pdf
