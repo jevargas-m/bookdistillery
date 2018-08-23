@@ -57,11 +57,11 @@ def buildSummary(Books_id,limit):
         row = cur.fetchone()
 
         if row is None: #Record does not exist in db
-            cur.execute('''INSERT INTO Summary (Books_id, Words_id, permillion, weight, stdevi)
-                    VALUES (?,?,?,?,?)''',(Books_id, Words_id, calcpermillion, weight, calcstdev))
+            cur.execute('''INSERT INTO Summary (Books_id, Words_id, permillion, weight, stdevi, statusref)
+                    VALUES (?,?,?,?,?,?)''',(Books_id, Words_id, calcpermillion, weight, calcstdev, status))
         else:
-            cur.execute('''UPDATE Summary SET permillion=?,weight=?,stdevi=? WHERE Books_id = ?
-                         AND Words_id=?''', (calcpermillion,weight,calcstdev,Books_id,Words_id))
+            cur.execute('''UPDATE Summary SET permillion=?,weight=?,stdevi=?,statusref=? WHERE Books_id = ?
+                         AND Words_id=?''', (calcpermillion,weight,calcstdev,status,Books_id,Words_id))
     con.commit()
     return
 
@@ -72,6 +72,15 @@ def getKeywords(Books_id, howmany):
                 ORDER BY Summary.weight * Summary.stdevi DESC LIMIT ?''',(Books_id,Books_id,howmany))
     return( cur.fetchall() )
 
+def rawOutputSummary(Books_id):
+    cur.execute('''SELECT * FROM Summary WHERE Books_id = ?''',(Books_id,))
+    fwriter = open('rawoutput.csv','w',newline='')
+    with fwriter:
+        writer = csv.writer(fwriter)
+        for row in cur.fetchall():
+            writer.writerow(row)
+    print('--- File rawoutput.csv was generated with results ---')
+    return
 
 utils.printWordsStats()
 utils.printBooks()
@@ -84,14 +93,17 @@ cur.executescript('''
         permillion  REAL,
         weight      REAL,
         stdevi      REAL,
+        statusref   INTEGER,
         PRIMARY KEY (Books_id, Words_id)
     )
 ''')
 
 while True:
-    inputtext = input('(1)Build Summary, (2)Display Keywords :')
+    inputtext = input('(1)Build Summary, (2)Generate Keywords, (3)Raw Output :')
     if inputtext == '1':
-        limit = input('limit summary to how many of the top words: ')
+        limit = input('limit summary to how many of the top words, type <<all>> to use all words): ')
+        if limit == 'all':
+            limit = 10000000
         buildSummary(Books_id,limit)
     elif inputtext == '2':
         n = input('How many keywords?')
@@ -103,5 +115,7 @@ while True:
             for row in keywords:
                 writer.writerow(row)
         print('--- File keywords.csv was generated with results ---')
+    elif inputtext == '3':
+        rawOutputSummary(Books_id)
     elif inputtext == 'q':
         break
