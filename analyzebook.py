@@ -11,14 +11,10 @@ def positionStdDev(Books_id,Words_id):
                     Words_id = ?''', (Books_id,Words_id))
     positions = [v[0] for v in cur.fetchall()]
 
-    cur.execute(''' SELECT SUM(Counts.count) FROM Counts
-                WHERE Counts.books_id = ? ''', (Books_id,))
-    totalwords = cur.fetchone()[0]
-
     if len(positions)<2:
         return 0
     else:
-        return statistics.stdev(positions)/totalwords
+        return statistics.stdev(positions)
 
 def buildSummary(Books_id,limit):
     cur.execute('''DELETE FROM Summary WHERE Books_id = ?''',(Books_id,))
@@ -46,37 +42,58 @@ def buildSummary(Books_id,limit):
         dbpermillion = cur.fetchone()[0]
         cur.execute('SELECT status FROM Words WHERE id = ?', (Words_id,))
         status = cur.fetchone()[0]
+        # Calculate usage
         calcpermillion = round(wordcount / totalwords * 1000000)
-        calcstdev = positionStdDev(Books_id,Words_id)
         if status == 1:
-            weight = round(calcpermillion / dbpermillion)
+            usage = round(calcpermillion / dbpermillion)
         elif status == 2:
-            weight = round(calcpermillion / 100 ) #This is the reference frequency for words wo stats
+            usage = 0
+
+        spread = positionStdDev(Books_id,Words_id) * calcpermillion
 
         cur.execute('SELECT * FROM Summary WHERE Books_id = ? AND Words_id=?',(Books_id,Words_id))
         row = cur.fetchone()
 
         if row is None: #Record does not exist in db
-            cur.execute('''INSERT INTO Summary (Books_id, Words_id, permillion, weight, stdevi, statusref)
-                    VALUES (?,?,?,?,?,?)''',(Books_id, Words_id, calcpermillion, weight, calcstdev, status))
+            cur.execute('''INSERT INTO Summary (Books_id, Words_id, permillion, usage, spread, statusref)
+                    VALUES (?,?,?,?,?,?)''',(Books_id, Words_id, calcpermillion, usage, spread, status))
         else:
-            cur.execute('''UPDATE Summary SET permillion=?,weight=?,stdevi=?,statusref=? WHERE Books_id = ?
-                         AND Words_id=?''', (calcpermillion,weight,calcstdev,status,Books_id,Words_id))
+            cur.execute('''UPDATE Summary SET permillion=?,usage=?,spread=?,statusref=? WHERE Books_id = ?
+                         AND Words_id=?''', (calcpermillion,usage,spread,status,Books_id,Words_id))
     con.commit()
     return
 
 def getKeywords(Books_id, howmany):
-    #TODO Implement weight algorithm for different word selection criteria
+    #TODO Implement Weight algorithm for different word selection criteria
+
+    usages = {}
+    cur.execute('''SELECT Words_id, usage FROM Summary WHERE Books_id = ?
+                    ORDER BY usage DESC''',(Books_id,))
+    for row in cur.fetchall():
+        usages[row[0]] = row[1]
+
+    spreads = {}
+    cur.execute('''SELECT Words_id, spread FROM Summary WHERE Books_id = ?
+                    ORDER BY spread DESC''',(Books_id,))
+    for row in cur.fetchall():
+        spreads[row[0]] = row[1]
+
+    unknowns = {}
+    cur.execute('''SELECT Words_id, permillion FROM Summary WHERE Books_id = ? AND statusref = 2
+                    ORDER BY permillion DESC''',(Books_id,))
+    for row in cur.fetchall():
+        unknowns[row[0]] = row[1]
+
     cur.execute('''SELECT Words.word,Counts.count FROM Words JOIN Summary JOIN Counts
                 ON Words.id = Summary.Words_id AND Summary.Books_id = ?
 				AND Counts.Books_id=? AND Counts.Words_id = Summary.Words_id
-                ORDER BY Summary.weight * Summary.stdevi DESC LIMIT ?''',(Books_id,Books_id,howmany))
+                ORDER BY Summary.usage * Summary.spread DESC LIMIT ?''',(Books_id,Books_id,howmany))
     return( cur.fetchall() )
 
 # This produces a CSV file with all the analysis from Summary to use for improving algorithm parameters
 def rawOutputSummary(Books_id):
-    cur.execute('''SELECT Words.word,Counts.count, Summary.permillion, Summary.weight,
-                    Summary.stdevi, Summary.statusref
+    cur.execute('''SELECT Words.word,Counts.count, Summary.permillion, Summary.usage,
+                    Summary.spread, Summary.statusref
                     FROM Words JOIN Summary JOIN Counts
                     ON Words.id = Summary.Words_id AND Summary.Books_id = ?
 				    AND Counts.Books_id=Summary.Books_id AND Counts.Words_id = Summary.Words_id
@@ -84,7 +101,7 @@ def rawOutputSummary(Books_id):
     fwriter = open('rawoutput.csv','w',newline='')
     with fwriter:
         writer = csv.writer(fwriter)
-        writer.writerow(('Word','Count','perMillion','Weight','PStdev','StatusRef'))
+        writer.writerow(('Word','Count','perMillion','usage','spread','StatusRef'))
         for row in cur.fetchall():
             writer.writerow(row)
             print(row)
@@ -95,13 +112,14 @@ utils.printWordsStats()
 utils.printBooks()
 Books_id = utils.inputBookid()
 
+#TODO Merge Summary table with Counts table
 cur.executescript('''
     CREATE TABLE IF NOT EXISTS Summary (
         Books_id    INTEGER,
         Words_id    INTEGER,
         permillion  REAL,
-        weight      REAL,
-        stdevi      REAL,
+        usage       REAL,
+        spread      REAL,
         statusref   INTEGER,
         PRIMARY KEY (Books_id, Words_id)
     )
