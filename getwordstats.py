@@ -14,6 +14,7 @@ numwords = cur.fetchone()[0]
 
 print('Book has',numwords,'unique words')
 getnum = input('How many of the top words to ensure have stats in db: ')
+#TODO improve decision making on how to do API calls
 
 cur.execute('''SELECT Words.word,Words.status FROM Words JOIN Counts
     ON (Counts.Words_id = Words.id AND Counts.Books_id = ? AND Words.status = 0)

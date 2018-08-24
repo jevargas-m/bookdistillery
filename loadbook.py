@@ -65,6 +65,7 @@ Books_id = cur.fetchone()[0]
 position = 0
 for line in fhandler:
     # Everything in lower case ignoring punctuation
+    #TODO try str.maketrans instead
     line = line.lower()
     words = re.sub(r'[^\w\s]','',line).split()
 

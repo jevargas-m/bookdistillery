@@ -66,19 +66,28 @@ def buildSummary(Books_id,limit):
     return
 
 def getKeywords(Books_id, howmany):
+    #TODO Implement weight algorithm for different word selection criteria
     cur.execute('''SELECT Words.word,Counts.count FROM Words JOIN Summary JOIN Counts
                 ON Words.id = Summary.Words_id AND Summary.Books_id = ?
 				AND Counts.Books_id=? AND Counts.Words_id = Summary.Words_id
                 ORDER BY Summary.weight * Summary.stdevi DESC LIMIT ?''',(Books_id,Books_id,howmany))
     return( cur.fetchall() )
 
+# This produces a CSV file with all the analysis from Summary to use for improving algorithm parameters
 def rawOutputSummary(Books_id):
-    cur.execute('''SELECT * FROM Summary WHERE Books_id = ?''',(Books_id,))
+    cur.execute('''SELECT Words.word,Counts.count, Summary.permillion, Summary.weight,
+                    Summary.stdevi, Summary.statusref
+                    FROM Words JOIN Summary JOIN Counts
+                    ON Words.id = Summary.Words_id AND Summary.Books_id = ?
+				    AND Counts.Books_id=Summary.Books_id AND Counts.Words_id = Summary.Words_id
+                    ORDER BY Counts.count DESC''',(Books_id,))
     fwriter = open('rawoutput.csv','w',newline='')
     with fwriter:
         writer = csv.writer(fwriter)
+        writer.writerow(('Word','Count','perMillion','Weight','PStdev','StatusRef'))
         for row in cur.fetchall():
             writer.writerow(row)
+            print(row)
     print('--- File rawoutput.csv was generated with results ---')
     return
 
@@ -99,11 +108,11 @@ cur.executescript('''
 ''')
 
 while True:
-    inputtext = input('(1)Build Summary, (2)Generate Keywords, (3)Raw Output :')
+    inputtext = input('(1)Build Summary, (2)Generate Keywords, (3)Raw Output, (q) Quit :')
     if inputtext == '1':
         limit = input('limit summary to how many of the top words, type <<all>> to use all words): ')
         if limit == 'all':
-            limit = 10000000
+            limit = 10000000 #TODO Put actual limit from SQL Query
         buildSummary(Books_id,limit)
     elif inputtext == '2':
         n = input('How many keywords?')
