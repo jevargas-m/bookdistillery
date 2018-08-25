@@ -171,7 +171,7 @@ while True:
         highest = max([ word[1] for word in keywords ])
         lowest = min([ word[1] for word in keywords ])
 
-        fhand = open('gword.js','w')
+        fhand = open('visualization/gword.js','w')
         fhand.write("gword = [")
         first = True
         for word, score in keywords:
