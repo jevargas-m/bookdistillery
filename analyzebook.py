@@ -63,6 +63,16 @@ def buildSummary(Books_id,limit):
     con.commit()
     return
 
+def normalizeCriteria(criteria):
+    normCriteria = {}
+    maximum_id = max(criteria, key=criteria.get)
+    maximum = criteria[maximum_id]
+    minimum_id = min(criteria, key=criteria.get)
+    minimum = criteria[minimum_id]
+    for key in criteria:
+        normCriteria[key] = (criteria[key] - minimum) / (maximum - minimum)
+    return normCriteria
+
 def getKeywords(Books_id, howmany):
     #TODO Implement Weight algorithm for different word selection criteria
 
@@ -71,6 +81,9 @@ def getKeywords(Books_id, howmany):
                     ORDER BY usage DESC''',(Books_id,))
     for row in cur.fetchall():
         usages[row[0]] = row[1]
+    normUsages = normalizeCriteria(usages)
+    print(normUsages)
+
 
     spreads = {}
     cur.execute('''SELECT Words_id, spread FROM Summary WHERE Books_id = ?
@@ -78,11 +91,14 @@ def getKeywords(Books_id, howmany):
     for row in cur.fetchall():
         spreads[row[0]] = row[1]
 
+
     unknowns = {}
     cur.execute('''SELECT Words_id, permillion FROM Summary WHERE Books_id = ? AND statusref = 2
                     ORDER BY permillion DESC''',(Books_id,))
     for row in cur.fetchall():
         unknowns[row[0]] = row[1]
+    unknownranks = sorted(unknowns, key=unknowns.get, reverse=True)
+
 
     cur.execute('''SELECT Words.word,Counts.count FROM Words JOIN Summary JOIN Counts
                 ON Words.id = Summary.Words_id AND Summary.Books_id = ?
