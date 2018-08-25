@@ -183,13 +183,9 @@ while True:
             fhand.write("{text: '"+word+"', size: "+str(size)+"}")
         fhand.write( "\n];\n")
         fhand.close()
-
         print("Output written to gword.js")
         print("Open gword.htm in a browser to see the vizualization")
 
-
-
-        print(keywords)
         fwriter = open('keywords.csv','w',newline='')
         with fwriter:
             writer = csv.writer(fwriter)
