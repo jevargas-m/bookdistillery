@@ -49,7 +49,7 @@ def buildSummary(Books_id,limit):
         elif status == 2:
             usage = 0
 
-        spread = positionStdDev(Books_id,Words_id) * calcpermillion
+        spread = positionStdDev(Books_id,Words_id) * usage
 
         cur.execute('SELECT * FROM Summary WHERE Books_id = ? AND Words_id=?',(Books_id,Words_id))
         row = cur.fetchone()
@@ -74,37 +74,49 @@ def normalizeCriteria(criteria):
     return normCriteria
 
 def getKeywords(Books_id, howmany):
-    #TODO Implement Weight algorithm for different word selection criteria
-
     usages = {}
-    cur.execute('''SELECT Words_id, usage FROM Summary WHERE Books_id = ?
+    cur.execute('''SELECT Words_id, usage FROM Summary WHERE Books_id = ? AND usage IS NOT NULL
                     ORDER BY usage DESC''',(Books_id,))
     for row in cur.fetchall():
         usages[row[0]] = row[1]
     normUsages = normalizeCriteria(usages)
-    print(normUsages)
-
 
     spreads = {}
-    cur.execute('''SELECT Words_id, spread FROM Summary WHERE Books_id = ?
+    cur.execute('''SELECT Words_id, spread FROM Summary WHERE Books_id = ? AND spread IS NOT NULL
                     ORDER BY spread DESC''',(Books_id,))
     for row in cur.fetchall():
         spreads[row[0]] = row[1]
-
+    normSpreads = normalizeCriteria(spreads)
 
     unknowns = {}
     cur.execute('''SELECT Words_id, permillion FROM Summary WHERE Books_id = ? AND statusref = 2
                     ORDER BY permillion DESC''',(Books_id,))
     for row in cur.fetchall():
         unknowns[row[0]] = row[1]
-    unknownranks = sorted(unknowns, key=unknowns.get, reverse=True)
+    normUnknowns = normalizeCriteria(unknowns)
 
+    #Using weights from Rank-Order-Centroid-Method (ROC), 3 criterion ranked as:
+    # 1.usage, 2.spread & 3.unknown, Sum of weights = 1
+    usageWeight = 0.6111
+    spreadWeight = 0.2778
+    unknownWeight = 0.1111
 
-    cur.execute('''SELECT Words.word,Counts.count FROM Words JOIN Summary JOIN Counts
-                ON Words.id = Summary.Words_id AND Summary.Books_id = ?
-				AND Counts.Books_id=? AND Counts.Words_id = Summary.Words_id
-                ORDER BY Summary.usage * Summary.spread DESC LIMIT ?''',(Books_id,Books_id,howmany))
-    return( cur.fetchall() )
+    scores = {}
+    for word_id in normUsages:
+        scores[word_id] = normUsages[word_id] * usageWeight
+    for word_id in normSpreads:
+        scores[word_id] = scores.get(word_id,0) + normSpreads[word_id] * spreadWeight
+    for word_id in normUnknowns:
+        scores[word_id] = scores.get(word_id,0) + normUnknowns[word_id] * unknownWeight
+
+    keywords = {}
+    for word_id in scores:
+        cur.execute('SELECT word FROM Words WHERE id = ?',(word_id,))
+        keywords[cur.fetchone()[0]] = round(scores[word_id],4)
+
+    sortedkeywords = sorted([(value, key) for (key,value) in keywords.items()],reverse=True)
+    return [ (key,value) for (value,key) in sortedkeywords ][:int(howmany)]
+
 
 # This produces a CSV file with all the analysis from Summary to use for improving algorithm parameters
 def rawOutputSummary(Books_id):
