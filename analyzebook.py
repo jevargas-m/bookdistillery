@@ -163,6 +163,32 @@ while True:
     elif inputtext == '2':
         n = input('How many keywords?')
         keywords = getKeywords(Books_id,n)
+
+        # Spread the font sizes across 20-100 based on the count
+        bigsize = 80
+        smallsize = 20
+
+        highest = max([ word[1] for word in keywords ])
+        lowest = min([ word[1] for word in keywords ])
+
+        fhand = open('gword.js','w')
+        fhand.write("gword = [")
+        first = True
+        for word, score in keywords:
+            if not first : fhand.write( ",\n")
+            first = False
+            size = score
+            size = (size - lowest) / float(highest - lowest)
+            size = int((size * bigsize) + smallsize)
+            fhand.write("{text: '"+word+"', size: "+str(size)+"}")
+        fhand.write( "\n];\n")
+        fhand.close()
+
+        print("Output written to gword.js")
+        print("Open gword.htm in a browser to see the vizualization")
+
+
+
         print(keywords)
         fwriter = open('keywords.csv','w',newline='')
         with fwriter:
