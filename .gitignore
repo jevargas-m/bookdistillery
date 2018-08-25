@@ -3,3 +3,4 @@ __pycache__
 bookswort.sqlite
 Books/
 littleprince.pdf
+keywords.csv
