@@ -17,6 +17,8 @@ def positionStdDev(Books_id,Words_id):
         return statistics.stdev(positions)
 
 def buildSummary(Books_id,limit):
+    import math
+
     cur.execute('''DELETE FROM Summary WHERE Books_id = ?''',(Books_id,))
 
     cur.execute('''SELECT Words.word,Words.id,Counts.count FROM Words JOIN Counts
@@ -39,13 +41,13 @@ def buildSummary(Books_id,limit):
         Words_id = record[1]
         wordcount = record[2]
         cur.execute('SELECT permillion FROM Words WHERE id = ?', (Words_id,))
-        dbpermillion = cur.fetchone()[0]
+        permilliondb = cur.fetchone()[0]
         cur.execute('SELECT status FROM Words WHERE id = ?', (Words_id,))
         status = cur.fetchone()[0]
         # Calculate usage
-        calcpermillion = round(wordcount / totalwords * 1000000)
+        calcpermillion = wordcount / totalwords * 1000000
         if status == 1:
-            usage = round(calcpermillion / dbpermillion)
+            usage = calcpermillion * math.log10(1/permilliondb)
         elif status == 2:
             usage = 0
 
@@ -97,9 +99,9 @@ def getKeywords(Books_id, howmany):
 
     #Using weights from Rank-Order-Centroid-Method (ROC), 3 criterion ranked as:
     # 1.usage, 2.spread & 3.unknown, Sum of weights = 1
-    usageWeight = 0.6111
-    spreadWeight = 0.2778
-    unknownWeight = 0.1111
+    usageWeight = 1#0.6111
+    spreadWeight = 0#0.2778
+    unknownWeight = 0#0.1111
 
     scores = {}
     for word_id in normUsages:
@@ -165,8 +167,8 @@ while True:
         keywords = getKeywords(Books_id,n)
 
         # Spread the font sizes across 20-100 based on the count
-        bigsize = 80
-        smallsize = 20
+        bigsize = 75
+        smallsize = 15
 
         highest = max([ word[1] for word in keywords ])
         lowest = min([ word[1] for word in keywords ])

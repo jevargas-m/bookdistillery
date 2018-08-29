@@ -43,12 +43,13 @@ if filename == 'q': quit()
 
 try:
     path = 'Books/'
-    fhandler = open(path+filename)
+    fhandler = open(path+filename, encoding='UTF-8')
 except:
     print('==== invalid file ====')
     quit()
 
 #Seek if file has already been processed
+#TODO process and rewrite existing files
 cur.execute('SELECT id FROM Books WHERE filename = ?',(filename,))
 row = cur.fetchone()
 if row is not None:
