@@ -97,11 +97,11 @@ def getKeywords(Books_id, howmany):
         unknowns[row[0]] = row[1]
     normUnknowns = normalizeCriteria(unknowns)
 
-    #Using weights from Rank-Order-Centroid-Method (ROC), 3 criterion ranked as:
+    #Using weights from Rank exponent weight method, p=5, 3 criterion ranked as:
     # 1.usage, 2.spread & 3.unknown, Sum of weights = 1
-    usageWeight = 1#0.6111
-    spreadWeight = 0#0.2778
-    unknownWeight = 0#0.1111
+    usageWeight = 0.880#0.6111
+    spreadWeight = 0.116#0.2778
+    unknownWeight = 0.004#0.1111
 
     scores = {}
     for word_id in normUsages:
